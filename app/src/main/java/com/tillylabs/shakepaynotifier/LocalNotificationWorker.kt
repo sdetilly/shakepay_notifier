@@ -1,6 +1,8 @@
 package com.tillylabs.shakepaynotifier
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -24,12 +26,11 @@ class LocalNotificationWorker(
     override fun doWork(): Result {
         val title = inputData.getString(KEY_TITLE)
         val message = inputData.getString(KEY_MESSAGE)
-        val openShakepayIntent = context.packageManager.getLaunchIntentForPackage("com.shaketh");
+        val openShakepayIntent = context.packageManager.getLaunchIntentForPackage("com.shaketh")
         val notificationId = Random.nextInt()
-        openShakepayIntent?.action = notificationId.toString()
         val contentIntent = PendingIntent.getActivity(context, 0, openShakepayIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val builder = NotificationCompat.Builder(context, Const.LOCAL_NOTIFICATIONS_CHANNEL_ID)
-            //.setSmallIcon(R.drawable.ic_notification)
+            .setSmallIcon(R.drawable.ic_warning)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -39,7 +40,15 @@ class LocalNotificationWorker(
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             return Result.failure()
         }
-        NotificationManagerCompat.from(context).notify(notificationId, builder.build())
+        val channel = NotificationChannel(
+            Const.LOCAL_NOTIFICATIONS_CHANNEL_ID,
+            "Shakepay notification",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        NotificationManagerCompat.from(context).apply {
+            createNotificationChannel(channel)
+            notify(notificationId, builder.build())
+        }
         return Result.success()
     }
 }
