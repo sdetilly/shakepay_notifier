@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Shake Notifier</string>
+    <string name="shake_notifier">Shake Notifier</string>
+    <string name="remember_to_shake_today">N\'oublie pas de secouer aujourd\'hui!</string>
+    <string name="time_until_next_alarm">Temps restant avant la prochaine alarme: %s</string>
+</resources>

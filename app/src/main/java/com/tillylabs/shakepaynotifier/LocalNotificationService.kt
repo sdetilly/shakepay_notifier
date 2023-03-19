@@ -1,11 +1,11 @@
 package com.tillylabs.shakepaynotifier
 
 import android.content.Context
-import androidx.work.Data
+import android.util.Log
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
-import kotlin.time.TimeMark
 
 class LocalNotificationService(private val context: Context) {
 
@@ -13,21 +13,15 @@ class LocalNotificationService(private val context: Context) {
         const val LOCAL_NOTIFICATIONS_TAG = "local_notification"
     }
 
-    /* suspend fun scheduleNotifications(notifications: List<Date>): List<String> {
-        return notifications.map { notification ->
-            val initialDelay = notification.scheduleAtEpoc - DateTime.now().unixMillisLong
-            val notificationData = Data.Builder()
-                .putString(LocalNotificationWorker.KEY_TITLE, notification.title)
-                .putString(LocalNotificationWorker.KEY_MESSAGE, notification.message)
+    fun scheduleNotifications(): String {
+        val timeBeforeOneAm = TimeUtils.timeUntilOneAm()
+        Log.d("SHAKEPAYNOTIF", "Notification in ${timeBeforeOneAm.inWholeMinutes}")
+        val work =
+            OneTimeWorkRequestBuilder<LocalNotificationWorker>()
+                .setInitialDelay(timeBeforeOneAm.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+                .addTag(LOCAL_NOTIFICATIONS_TAG)
                 .build()
-            val work =
-                OneTimeWorkRequestBuilder<LocalNotificationWorker>()
-                    .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-                    .setInputData(notificationData)
-                    .addTag(LOCAL_NOTIFICATIONS_TAG)
-                    .build()
-            WorkManager.getInstance(context).enqueue(work)
-            work.id.toString()
-        }
-    }*/
+        WorkManager.getInstance(context).enqueueUniqueWork(Const.SINGLE_WORK_TAG, ExistingWorkPolicy.KEEP, work)
+         return work.id.toString()
+    }
 }
